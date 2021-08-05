@@ -31,13 +31,13 @@ SELECT c.first_name, c.last_name,
 
 ### Q3 rental variation between stores
 
-SELECT s.store_id,TO_CHAR(
+SELECT s.store_id,DATE_PART('YEAR',rental_date)AS rental_year,TO_CHAR(
     TO_DATE (DATE_PART('MONTH',rental_date)::text, 'MM'), 'Month'
-    ) AS rental_date,count(*) AS rental_count
+    ) AS rental_month,count(*) AS rental_count
  FROM store s
  JOIN staff sf
  USING(store_id)
  JOIN rental r
  USING(staff_id)
- GROUP BY store_id,rental_date
+ GROUP BY store_id,rental_month,rental_year
  ORDER BY rental_count DESC;
