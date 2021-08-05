@@ -42,7 +42,7 @@ SELECT s.store_id,DATE_PART('YEAR',rental_date)AS rental_year,TO_CHAR(
  GROUP BY store_id,rental_month,rental_year
  ORDER BY rental_count DESC;
 
-###Q4 Revenue per countries
+###Q4 Revenue per countries in 2007
 
 SELECT co.country,SUM(p.amount) AS country_revenue
 FROM country co
