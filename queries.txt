@@ -13,3 +13,17 @@ JOIN category c
 ON c.category_id=fc.category_id
 GROUP BY category
 ORDER BY rental_count DESC;
+
+### Q2  How much did our top customers pay in each month?
+
+SELECT c.first_name, c.last_name,
+       DATE_PART('YEAR',p.payment_date)AS payment_year,TO_CHAR(
+    TO_DATE (DATE_PART('MONTH',p.payment_date)::text, 'MM'), 'Month'
+    ) AS payment_month,SUM(p.amount) AS monthly_total_payment
+   FROM customer c
+   JOIN payment p
+   ON c.customer_id=p.customer_id
+   GROUP BY c.first_name, 
+       c.last_name, payment_year,payment_month
+   ORDER BY SUM(p.amount) DESC
+   LIMIT 10;
