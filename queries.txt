@@ -1,6 +1,8 @@
-### Q1 show Total rental for each category
+### Q1 show monthly Total rental for each category
 
-SELECT c.name As category,
+SELECT c.name As category,DATE_PART('YEAR',rental_date)AS rental_year,TO_CHAR(
+    TO_DATE (DATE_PART('MONTH',rental_date)::text, 'MM'), 'Month'
+    ) AS rental_month,
 COUNT(*) As rental_count
 FROM inventory i
 JOIN rental r
@@ -11,20 +13,19 @@ JOIN film_category fc
 ON fc.film_id=f.film_id
 JOIN category c
 ON c.category_id=fc.category_id
-GROUP BY category
+GROUP BY category,rental_month,rental_year
 ORDER BY rental_count DESC;
 
-### Q2  How much did our top customers pay in each month?
+### Q2  How much did our top customers pay in each month in 2007?
 
-SELECT c.first_name, c.last_name,
-       DATE_PART('YEAR',p.payment_date)AS payment_year,TO_CHAR(
+SELECT c.first_name, c.last_name,TO_CHAR(
     TO_DATE (DATE_PART('MONTH',p.payment_date)::text, 'MM'), 'Month'
     ) AS payment_month,SUM(p.amount) AS monthly_total_payment
    FROM customer c
    JOIN payment p
    ON c.customer_id=p.customer_id
    GROUP BY c.first_name, 
-       c.last_name, payment_year,payment_month
+       c.last_name,payment_month
    ORDER BY SUM(p.amount) DESC
    LIMIT 10;
 
@@ -42,7 +43,19 @@ SELECT s.store_id,DATE_PART('YEAR',rental_date)AS rental_year,TO_CHAR(
  GROUP BY store_id,rental_month,rental_year
  ORDER BY rental_count DESC;
 
-###Q4 Revenue per countries in 2007
+### Q4 Annual rental count for each store
+
+   SELECT s.store_id,DATE_PART('YEAR',rental_date)AS rental_year,count(*) AS rental_count
+ FROM store s
+ JOIN staff sf
+ USING(store_id)
+ JOIN rental r
+ USING(staff_id)
+ GROUP BY store_id,rental_year
+ ORDER BY store_id, rental_count DESC;
+
+
+###Q5 Revenue per countries in 2007
 
 SELECT co.country,SUM(p.amount) AS country_revenue
 FROM country co
