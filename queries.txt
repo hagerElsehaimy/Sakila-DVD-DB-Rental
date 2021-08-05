@@ -1,0 +1,15 @@
+### Q1 show Total rental for each category
+
+SELECT c.name As category,
+COUNT(r.rental_id) As rental_count
+FROM inventory i
+JOIN rental r
+ON i.inventory_id=r.inventory_id
+JOIN film f
+ON i.film_id=f.film_id
+JOIN film_category fc
+ON fc.film_id=f.film_id
+JOIN category c
+ON c.category_id=fc.category_id
+GROUP BY category
+ORDER BY rental_count DESC;
