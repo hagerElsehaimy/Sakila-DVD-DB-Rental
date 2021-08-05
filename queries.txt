@@ -41,3 +41,18 @@ SELECT s.store_id,DATE_PART('YEAR',rental_date)AS rental_year,TO_CHAR(
  USING(staff_id)
  GROUP BY store_id,rental_month,rental_year
  ORDER BY rental_count DESC;
+
+###Q4 Revenue per countries
+
+SELECT co.country,SUM(p.amount) AS country_revenue
+FROM country co
+JOIN city ci
+USING(country_id)
+JOIN address ad
+USING(city_id)
+JOIN customer cu
+USING(address_id)
+JOIN payment p
+USING (customer_id)
+GROUP BY co.country
+ORDER BY country_revenue DESC;
