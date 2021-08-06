@@ -1,8 +1,6 @@
 ### Q1 show monthly Total rental for each category
 
-SELECT c.name As category,DATE_PART('YEAR',rental_date)AS rental_year,TO_CHAR(
-    TO_DATE (DATE_PART('MONTH',rental_date)::text, 'MM'), 'Month'
-    ) AS rental_month,
+SELECT c.name As category,DATE_PART('YEAR',rental_date)AS rental_year,
 COUNT(*) As rental_count
 FROM inventory i
 JOIN rental r
@@ -13,10 +11,10 @@ JOIN film_category fc
 ON fc.film_id=f.film_id
 JOIN category c
 ON c.category_id=fc.category_id
-GROUP BY category,rental_month,rental_year
-ORDER BY rental_count DESC;
+GROUP BY category,rental_year
+ORDER BY rental_year,category;
 
-### Q2  How much did our top customers pay in each month in 2007?
+### Q2  How much did our top customers pay in each month in 2007? 
 
 SELECT c.first_name, c.last_name,TO_CHAR(
     TO_DATE (DATE_PART('MONTH',p.payment_date)::text, 'MM'), 'Month'
@@ -32,7 +30,7 @@ SELECT c.first_name, c.last_name,TO_CHAR(
 
 ### Q3 rental variation between stores
 
-SELECT s.store_id,DATE_PART('YEAR',rental_date)AS rental_year,TO_CHAR(
+SELECT s.store_id,TO_CHAR(
     TO_DATE (DATE_PART('MONTH',rental_date)::text, 'MM'), 'Month'
     ) AS rental_month,count(*) AS rental_count
  FROM store s
@@ -40,8 +38,10 @@ SELECT s.store_id,DATE_PART('YEAR',rental_date)AS rental_year,TO_CHAR(
  USING(store_id)
  JOIN rental r
  USING(staff_id)
- GROUP BY store_id,rental_month,rental_year
- ORDER BY rental_count DESC;
+ WHERE DATE_PART('YEAR',rental_date)=2005
+ GROUP BY store_id,rental_month
+ ORDER BY store_id DESC;
+
 
 ### Q4 Annual rental count for each store
 
@@ -70,9 +70,9 @@ USING (customer_id)
 GROUP BY co.country
 ORDER BY country_revenue DESC;
 
-### Q6 who have rented the most DVDs and what's their fav category
+### Q6 who are our top 3 customers what's their fav category?
 
-SELECT customer_id,first_name,last_name,category.name,count(*) AS count_per_cat
+WITH temp1 AS (SELECT customer_id,first_name,last_name,category.name,count(*) AS rent_count_per_cat
 FROM(
   SELECT c.customer_id,c.first_name, c.last_name,
  COUNT(*) AS num_dvd_rented
@@ -93,4 +93,7 @@ FROM(
  JOIN category
  USING(category_id)
  GROUP BY  customer_id,first_name,last_name,category.name
- ORDER BY first_name,count_per_cat DESC;
+ ORDER BY first_name,rent_count_per_cat DESC),
+ temp2 AS(SELECT customer_id,first_name,last_name,name	,rent_count_per_cat,ROW_NUMBER() OVER(PARTITION BY first_name,last_name) AS fav_cat FROM temp1)
+SELECT  first_name || ' ' || last_name AS full_name, name AS category_name,rent_count_per_cat FROM temp2
+WHERE fav_cat=1
