@@ -69,3 +69,28 @@ JOIN payment p
 USING (customer_id)
 GROUP BY co.country
 ORDER BY country_revenue DESC;
+
+### Q6 who have rented the most DVDs and what's their fav category
+
+SELECT customer_id,first_name,last_name,category.name,count(*) AS count_per_cat
+FROM(
+  SELECT c.customer_id,c.first_name, c.last_name,
+ COUNT(*) AS num_dvd_rented
+ FROM customer c
+ JOIN rental r
+ USING(customer_id)
+ GROUP BY c.customer_id,c.first_name,c.last_name
+ ORDER BY num_dvd_rented DESC
+ LIMIT 3) AS total_rented_DVD
+ JOIN rental
+ USING (customer_id)
+ JOIN inventory
+ USING(inventory_id)
+ JOIN film
+ USING(film_id)
+ JOIN film_category
+ USING(film_id)
+ JOIN category
+ USING(category_id)
+ GROUP BY  customer_id,first_name,last_name,category.name
+ ORDER BY first_name,count_per_cat DESC;
