@@ -97,3 +97,16 @@ FROM(
  temp2 AS(SELECT customer_id,first_name,last_name,name	,rent_count_per_cat,ROW_NUMBER() OVER(PARTITION BY first_name,last_name) AS fav_cat FROM temp1)
 SELECT  first_name || ' ' || last_name AS full_name, name AS category_name,rent_count_per_cat FROM temp2
 WHERE fav_cat=1
+
+### Q7 Which movies have max rental_duration and who's their main actor?
+
+SELECT title,SUM(rental_duration)AS total_rental_duration,first_name || ' ' || last_name AS full_name
+FROM (SELECT * FROM film
+     JOIN film_actor
+     USING(film_id)
+     JOIN actor
+     USING(actor_id)) AS detailed_rental_duration
+     GROUP BY title,full_name
+     HAVING MAX(rental_duration)>6
+     ORDER BY total_rental_duration DESC
+           
